@@ -26,7 +26,7 @@
  * USE OR INABILITY TO USE THIS SOFTWARE.
  *
  * Version: 14.0.0
- * Release date: 16/11/2023 (built at 14/11/2023 17:30:43)
+ * Release date: 22/11/2023 (built at 15/11/2023 15:20:09)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -105,7 +105,7 @@ Handsontable.hooks = _pluginHooks.default.getSingleton();
 Handsontable.CellCoords = _src.CellCoords;
 Handsontable.CellRange = _src.CellRange;
 Handsontable.packageName = 'handsontable';
-Handsontable.buildDate = "14/11/2023 17:30:43";
+Handsontable.buildDate = "15/11/2023 15:20:09";
 Handsontable.version = "14.0.0";
 Handsontable.languages = {
   dictionaryKeys: _registry.dictionaryKeys,
@@ -8550,7 +8550,7 @@ function _injectProductInfo(key, element) {
   const schemaValidity = _checkKeySchema(key);
   if (hasValidType || isNonCommercial || schemaValidity) {
     if (schemaValidity) {
-      const releaseDate = (0, _moment.default)("16/11/2023", 'DD/MM/YYYY');
+      const releaseDate = (0, _moment.default)("22/11/2023", 'DD/MM/YYYY');
       const releaseDays = Math.floor(releaseDate.toDate().getTime() / 8.64e7);
       const keyValidityDays = _extractTime(key);
       keyValidityDate = (0, _moment.default)((keyValidityDays + 1) * 8.64e7, 'x').format('MMMM DD, YYYY');
@@ -39203,7 +39203,7 @@ var _default = () => {
      */
     multiColumnSorting: undefined,
     /**
-     * When set to `true`, the `navigableHeaders` option lets you navigate [row headers](@/guides/rows/row-header.md) and [column headers](@/guides/columns/column-header.md), using the arrow keys or the <kbd>**Tab**</kbd> key (if the [`disableTabNavigation`](#disabletabnavigation) option is set to `false`).
+     * When set to `true`, the `navigableHeaders` option lets you navigate [row headers](@/guides/rows/row-header.md) and [column headers](@/guides/columns/column-header.md), using the arrow keys or the <kbd>**Tab**</kbd> key (if the [`tabNavigation`](#tabNavigation) option is set to `true`).
      *
      * @since 14.0.0
      * @memberof Options#
@@ -39222,27 +39222,27 @@ var _default = () => {
      */
     navigableHeaders: false,
     /**
-     * When set to `true`, the `disableTabNavigation` option changes the behavior of the
+     * When set to `false`, the `tabNavigation` option changes the behavior of the
      * <kbd>Tab</kbd> and <kbd>Shift</kbd>+<kbd>Tab</kbd> keyboard shortcuts. The Handsontable
-     * no more captures that shortcuts to make the grid navigation available (`disableTabNavigation: false`)
+     * no more captures that shortcuts to make the grid navigation available (`tabNavigation: true`)
      * but returns control to the browser so the native page navigation is possible.
      *
      * @since 14.0.0
      * @memberof Options#
      * @type {boolean}
-     * @default false
+     * @default true
      * @category Core
      *
      * @example
      * ```js
      * // you can't navigate row and column headers using <kbd>Tab</kbd> or <kbd>Shift</kbd>+<kbd>Tab</kbd> keyboard shortcuts
-     * disableTabNavigation: true,
+     * tabNavigation: false,
      *
      * // default behavior: you can navigate row and column headers using <kbd>Tab</kbd> or <kbd>Shift</kbd>+<kbd>Tab</kbd> keyboard shortcuts
-     * disableTabNavigation: false,
+     * tabNavigation: true,
      * ```
      */
-    disableTabNavigation: false,
+    tabNavigation: true,
     /**
      * @description
      * The `nestedHeaders` option configures the [`NestedHeaders`](@/api/nestedHeaders.md) plugin.
@@ -41962,7 +41962,7 @@ function installFocusCatcher(hot) {
     ...shortcutOptions,
     callback: () => {
       isTabOrShiftTabPressed = true;
-      if (hot.getSelectedRangeLast() && hot.getSettings().disableTabNavigation) {
+      if (hot.getSelectedRangeLast() && !hot.getSettings().tabNavigation) {
         isSavingCoordsEnabled = false;
       }
     },
@@ -41971,12 +41971,12 @@ function installFocusCatcher(hot) {
     ...shortcutOptions,
     callback: event => {
       const {
-        disableTabNavigation,
+        tabNavigation,
         autoWrapRow
       } = hot.getSettings();
       isTabOrShiftTabPressed = false;
       isSavingCoordsEnabled = true;
-      if (disableTabNavigation || !hot.selection.isSelected() || autoWrapRow && rowWrapState.wrapped && rowWrapState.flipped || !autoWrapRow && rowWrapState.wrapped) {
+      if (!tabNavigation || !hot.selection.isSelected() || autoWrapRow && rowWrapState.wrapped && rowWrapState.flipped || !autoWrapRow && rowWrapState.wrapped) {
         if (autoWrapRow && rowWrapState.wrapped && rowWrapState.flipped) {
           recentlyAddedFocusCoords = event.shiftKey ? getMostTopStartPosition(hot) : getMostBottomEndPosition(hot);
         }
