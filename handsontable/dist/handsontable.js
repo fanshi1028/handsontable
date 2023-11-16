@@ -26,7 +26,7 @@
  * USE OR INABILITY TO USE THIS SOFTWARE.
  *
  * Version: 14.0.0
- * Release date: 22/11/2023 (built at 15/11/2023 15:20:09)
+ * Release date: 22/11/2023 (built at 16/11/2023 10:16:31)
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -105,7 +105,7 @@ Handsontable.hooks = _pluginHooks.default.getSingleton();
 Handsontable.CellCoords = _src.CellCoords;
 Handsontable.CellRange = _src.CellRange;
 Handsontable.packageName = 'handsontable';
-Handsontable.buildDate = "15/11/2023 15:20:09";
+Handsontable.buildDate = "16/11/2023 10:16:31";
 Handsontable.version = "14.0.0";
 Handsontable.languages = {
   dictionaryKeys: _registry.dictionaryKeys,
@@ -33996,39 +33996,39 @@ class Transformation {
       const autoWrapCol = (0, _classPrivateFieldGet2.default)(this, _options).autoWrapCol();
       const zeroBasedCoords = (0, _classPrivateFieldGet2.default)(this, _options).createCellCoords(row + delta.row, col + delta.col);
       if (zeroBasedCoords.row >= height) {
-        const autoInsertingMode = createMissingRecords && minSpareRows > 0 && fixedRowsBottom === 0;
-        const isWrapEnabled = !autoInsertingMode && autoWrapCol;
+        const isActionInterrupted = (0, _object.createObjectPropListener)(createMissingRecords && minSpareRows > 0 && fixedRowsBottom === 0);
         const nextColumn = zeroBasedCoords.col + 1;
         const newCoords = (0, _classPrivateFieldGet2.default)(this, _options).createCellCoords(zeroBasedCoords.row - height, nextColumn >= width ? nextColumn - width : nextColumn);
-        this.runLocalHooks('beforeColumnWrap', isWrapEnabled, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), nextColumn >= width);
-        if (autoInsertingMode) {
+        this.runLocalHooks('beforeColumnWrap', isActionInterrupted, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), nextColumn >= width);
+        if (isActionInterrupted.value) {
           this.runLocalHooks('insertRowRequire', (0, _classPrivateFieldGet2.default)(this, _options).countRenderableRows());
-        } else if (isWrapEnabled) {
+        } else if (autoWrapCol) {
           zeroBasedCoords.assign(newCoords);
         }
       } else if (zeroBasedCoords.row < 0) {
+        const isActionInterrupted = (0, _object.createObjectPropListener)(autoWrapCol);
         const previousColumn = zeroBasedCoords.col - 1;
         const newCoords = (0, _classPrivateFieldGet2.default)(this, _options).createCellCoords(height + zeroBasedCoords.row, previousColumn < 0 ? width + previousColumn : previousColumn);
-        this.runLocalHooks('beforeColumnWrap', autoWrapCol, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), previousColumn < 0);
+        this.runLocalHooks('beforeColumnWrap', isActionInterrupted, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), previousColumn < 0);
         if (autoWrapCol) {
           zeroBasedCoords.assign(newCoords);
         }
       }
       if (zeroBasedCoords.col >= width) {
-        const autoInsertingMode = createMissingRecords && minSpareCols > 0;
-        const isWrapEnabled = !autoInsertingMode && autoWrapRow;
+        const isActionInterrupted = (0, _object.createObjectPropListener)(createMissingRecords && minSpareCols > 0);
         const nextRow = zeroBasedCoords.row + 1;
         const newCoords = (0, _classPrivateFieldGet2.default)(this, _options).createCellCoords(nextRow >= height ? nextRow - height : nextRow, zeroBasedCoords.col - width);
-        this.runLocalHooks('beforeRowWrap', isWrapEnabled, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), nextRow >= height);
-        if (autoInsertingMode) {
+        this.runLocalHooks('beforeRowWrap', isActionInterrupted, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), nextRow >= height);
+        if (isActionInterrupted.value) {
           this.runLocalHooks('insertColRequire', (0, _classPrivateFieldGet2.default)(this, _options).countRenderableColumns());
-        } else if (isWrapEnabled) {
+        } else if (autoWrapRow) {
           zeroBasedCoords.assign(newCoords);
         }
       } else if (zeroBasedCoords.col < 0) {
+        const isActionInterrupted = (0, _object.createObjectPropListener)(autoWrapRow);
         const previousRow = zeroBasedCoords.row - 1;
         const newCoords = (0, _classPrivateFieldGet2.default)(this, _options).createCellCoords(previousRow < 0 ? height + previousRow : previousRow, width + zeroBasedCoords.col);
-        this.runLocalHooks('beforeRowWrap', autoWrapRow, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), previousRow < 0);
+        this.runLocalHooks('beforeRowWrap', isActionInterrupted, _classPrivateMethodGet(this, _zeroBasedToVisualCoords, _zeroBasedToVisualCoords2).call(this, newCoords), previousRow < 0);
         if (autoWrapRow) {
           zeroBasedCoords.assign(newCoords);
         }
@@ -41936,7 +41936,7 @@ function installFocusCatcher(hot) {
       recentlyAddedFocusCoords = (_hot$getSelectedRange = hot.getSelectedRangeLast()) === null || _hot$getSelectedRange === void 0 ? void 0 : _hot$getSelectedRange.highlight;
     }
   });
-  hot.addHook('beforeRowWrap', (isWrapEnabled, newCoords, isFlipped) => {
+  hot.addHook('beforeRowWrap', (interruptedByAutoInsertMode, newCoords, isFlipped) => {
     rowWrapState.wrapped = true;
     rowWrapState.flipped = isFlipped;
   });
@@ -41952,7 +41952,6 @@ function installFocusCatcher(hot) {
   }
   const shortcutOptions = {
     keys: [['Tab'], ['Shift', 'Tab']],
-    runOnlyIf: () => !hot.getSettings().minSpareCols,
     preventDefault: false,
     stopPropagation: false,
     relativeToGroup: _shortcutContexts.GRID_GROUP,
@@ -42803,7 +42802,7 @@ const command = exports.command = {
   callback(hot, event) {
     const settings = hot.getSettings();
     const tabMoves = typeof settings.tabMoves === 'function' ? settings.tabMoves(event) : settings.tabMoves;
-    hot.selection.transformStart(tabMoves.row, tabMoves.col, true);
+    hot.selection.transformStart(tabMoves.row, tabMoves.col);
   }
 };
 
@@ -44603,6 +44602,7 @@ class TextEditor extends _baseEditor.BaseEditor {
   registerShortcuts() {
     const shortcutManager = this.hot.getShortcutManager();
     const editorContext = shortcutManager.getContext('editor');
+    const gridContext = shortcutManager.getContext('grid');
     const contextConfig = {
       runOnlyIf: () => (0, _mixed.isDefined)(this.hot.getSelected()),
       group: SHORTCUTS_GROUP
@@ -44611,21 +44611,9 @@ class TextEditor extends _baseEditor.BaseEditor {
       this.hot.rootDocument.execCommand('insertText', false, '\n');
     };
     editorContext.addShortcuts([{
-      keys: [['Tab']],
-      // TODO: Duplicated part of code (callback to shortcut).
-      callback: event => {
-        const tableMeta = this.hot.getSettings();
-        const tabMoves = typeof tableMeta.tabMoves === 'function' ? tableMeta.tabMoves(event) : tableMeta.tabMoves;
-        this.hot.selection.transformStart(tabMoves.row, tabMoves.col, true);
-      }
-    }, {
-      keys: [['Shift', 'Tab']],
-      // TODO: Duplicated part of code (callback to shortcut).
-      callback: event => {
-        const tableMeta = this.hot.getSettings();
-        const tabMoves = typeof tableMeta.tabMoves === 'function' ? tableMeta.tabMoves(event) : tableMeta.tabMoves;
-        this.hot.selection.transformStart(-tabMoves.row, -tabMoves.col);
-      }
+      keys: [['Tab'], ['Shift', 'Tab'], ['PageUp'], ['PageDown']],
+      forwardToContext: gridContext,
+      callback: () => {}
     }, {
       keys: [['Control', 'Enter']],
       callback: () => {
@@ -44650,18 +44638,6 @@ class TextEditor extends _baseEditor.BaseEditor {
       callback: () => {
         insertNewLine();
         return false; // Will block closing editor.
-      }
-    }, {
-      // TODO: Duplicated part of code (callback to shortcut)
-      keys: [['PageUp']],
-      callback: () => {
-        this.hot.selection.transformStart(-this.hot.countVisibleRows(), 0);
-      }
-    }, {
-      // TODO: Duplicated part of code (callback to shortcut)
-      keys: [['PageDown']],
-      callback: () => {
-        this.hot.selection.transformStart(this.hot.countVisibleRows(), 0);
       }
     }, {
       keys: [['Home']],
@@ -73771,7 +73747,6 @@ var _interopRequireDefault = __webpack_require__(1);
 exports.__esModule = true;
 __webpack_require__(8);
 __webpack_require__(78);
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(121));
 var _classPrivateFieldSet2 = _interopRequireDefault(__webpack_require__(136));
 var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _base = __webpack_require__(423);
@@ -73780,8 +73755,8 @@ var _array = __webpack_require__(113);
 var _element = __webpack_require__(107);
 var _event = __webpack_require__(126);
 var _number = __webpack_require__(141);
-var _backlight = _interopRequireDefault(__webpack_require__(599));
-var _guideline = _interopRequireDefault(__webpack_require__(601));
+var _backlight2 = _interopRequireDefault(__webpack_require__(599));
+var _guideline2 = _interopRequireDefault(__webpack_require__(601));
 __webpack_require__(602);
 function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -73823,6 +73798,8 @@ const CSS_AFTER_SELECTION = 'after-selection--columns';
  * @class ManualColumnMove
  * @plugin ManualColumnMove
  */
+var _backlight = /*#__PURE__*/new WeakMap();
+var _guideline = /*#__PURE__*/new WeakMap();
 var _columnsToMove = /*#__PURE__*/new WeakMap();
 var _countCols = /*#__PURE__*/new WeakMap();
 var _pressed = /*#__PURE__*/new WeakMap();
@@ -73884,17 +73861,21 @@ class ManualColumnMove extends _base.BasePlugin {
     /**
      * Backlight UI object.
      *
-     * @private
      * @type {object}
      */
-    (0, _defineProperty2.default)(this, "backlight", new _backlight.default(this.hot));
+    _classPrivateFieldInitSpec(this, _backlight, {
+      writable: true,
+      value: new _backlight2.default(this.hot)
+    });
     /**
      * Guideline UI object.
      *
-     * @private
      * @type {object}
      */
-    (0, _defineProperty2.default)(this, "guideline", new _guideline.default(this.hot));
+    _classPrivateFieldInitSpec(this, _guideline, {
+      writable: true,
+      value: new _guideline2.default(this.hot)
+    });
     /**
      * @type {number[]}
      */
@@ -74029,8 +74010,8 @@ class ManualColumnMove extends _base.BasePlugin {
   disablePlugin() {
     (0, _element.removeClass)(this.hot.rootElement, CSS_PLUGIN);
     this.unregisterEvents();
-    this.backlight.destroy();
-    this.guideline.destroy();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).destroy();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).destroy();
     super.disablePlugin();
   }
 
@@ -74267,8 +74248,8 @@ class ManualColumnMove extends _base.BasePlugin {
     let tdOffsetStart = this.hot.view.THEAD.offsetLeft + this.getColumnsWidth(0, (0, _classPrivateFieldGet2.default)(this, _hoveredColumn) - 1);
     const hiderWidth = wtTable.hider.offsetWidth;
     const tbodyOffsetLeft = wtTable.TBODY.offsetLeft;
-    const backlightElemMarginStart = this.backlight.getOffset().start;
-    const backlightElemWidth = this.backlight.getSize().width;
+    const backlightElemMarginStart = (0, _classPrivateFieldGet2.default)(this, _backlight).getOffset().start;
+    const backlightElemWidth = (0, _classPrivateFieldGet2.default)(this, _backlight).getSize().width;
     let rowHeaderWidth = 0;
     let mouseOffsetStart = 0;
     if (this.hot.isRtl()) {
@@ -74322,8 +74303,8 @@ class ManualColumnMove extends _base.BasePlugin {
     } else if (scrollableElement.scrollX !== undefined && (0, _classPrivateFieldGet2.default)(this, _hoveredColumn) < (0, _classPrivateFieldGet2.default)(this, _fixedColumnsStart)) {
       guidelineStart -= (0, _classPrivateFieldGet2.default)(this, _rootElementOffset) <= scrollableElement.scrollX ? (0, _classPrivateFieldGet2.default)(this, _rootElementOffset) : 0;
     }
-    this.backlight.setPosition(null, backlightStart);
-    this.guideline.setPosition(null, guidelineStart);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(null, backlightStart);
+    (0, _classPrivateFieldGet2.default)(this, _guideline).setPosition(null, guidelineStart);
   }
 
   /**
@@ -74353,15 +74334,15 @@ class ManualColumnMove extends _base.BasePlugin {
    * @private
    */
   buildPluginUI() {
-    this.backlight.build();
-    this.guideline.build();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).build();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).build();
   }
   /**
    * Destroys the plugin instance.
    */
   destroy() {
-    this.backlight.destroy();
-    this.guideline.destroy();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).destroy();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).destroy();
     super.destroy();
   }
 }
@@ -74378,11 +74359,11 @@ function _onBeforeOnCellMouseDown2(event, coords, TD, controller) {
     (0, _element.removeClass)(this.hot.rootElement, [CSS_ON_MOVING, CSS_SHOW_UI]);
     return;
   }
-  const guidelineIsNotReady = this.guideline.isBuilt() && !this.guideline.isAppended();
-  const backlightIsNotReady = this.backlight.isBuilt() && !this.backlight.isAppended();
+  const guidelineIsNotReady = (0, _classPrivateFieldGet2.default)(this, _guideline).isBuilt() && !(0, _classPrivateFieldGet2.default)(this, _guideline).isAppended();
+  const backlightIsNotReady = (0, _classPrivateFieldGet2.default)(this, _backlight).isBuilt() && !(0, _classPrivateFieldGet2.default)(this, _backlight).isAppended();
   if (guidelineIsNotReady && backlightIsNotReady) {
-    this.guideline.appendTo(wtTable.hider);
-    this.backlight.appendTo(wtTable.hider);
+    (0, _classPrivateFieldGet2.default)(this, _guideline).appendTo(wtTable.hider);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).appendTo(wtTable.hider);
   }
   const {
     from,
@@ -74410,9 +74391,9 @@ function _onBeforeOnCellMouseDown2(event, coords, TD, controller) {
     const offsetX = Math.abs(eventOffsetX - (this.hot.isRtl() ? TD.offsetWidth : 0));
     const inlineOffset = this.getColumnsWidth(start, coords.col - 1) + offsetX;
     const inlinePos = this.getColumnsWidth(countColumnsFrom, start - 1) + (fixedColumnsStart ? horizontalScrollPosition : 0) + inlineOffset;
-    this.backlight.setPosition(topPos, inlinePos);
-    this.backlight.setSize(this.getColumnsWidth(start, end), wtTable.hider.offsetHeight - topPos);
-    this.backlight.setOffset(null, -inlineOffset);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(topPos, inlinePos);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setSize(this.getColumnsWidth(start, end), wtTable.hider.offsetHeight - topPos);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setOffset(null, -inlineOffset);
     (0, _element.addClass)(this.hot.rootElement, CSS_ON_MOVING);
   } else {
     (0, _element.removeClass)(this.hot.rootElement, CSS_AFTER_SELECTION);
@@ -74473,8 +74454,8 @@ function _onAfterScrollVertically2() {
   const headerHeight = wtTable.getColumnHeaderHeight(0) + 1;
   const scrollTop = wtTable.holder.scrollTop;
   const posTop = headerHeight + scrollTop;
-  this.backlight.setPosition(posTop);
-  this.backlight.setSize(null, wtTable.hider.offsetHeight - posTop);
+  (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(posTop);
+  (0, _classPrivateFieldGet2.default)(this, _backlight).setSize(null, wtTable.hider.offsetHeight - posTop);
 }
 function _onAfterLoadData2() {
   this.moveBySettingsOrLoad();
@@ -74754,13 +74735,12 @@ exports.ManualColumnResize = _manualColumnResize.ManualColumnResize;
 "use strict";
 
 
+__webpack_require__(78);
 var _interopRequireDefault = __webpack_require__(1);
 exports.__esModule = true;
 __webpack_require__(8);
-__webpack_require__(78);
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(121));
-var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _classPrivateFieldSet2 = _interopRequireDefault(__webpack_require__(136));
+var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _base = __webpack_require__(423);
 var _element = __webpack_require__(107);
 var _array = __webpack_require__(113);
@@ -74790,6 +74770,21 @@ const PERSISTENT_STATE_KEY = 'manualColumnWidths';
  * - handle - the draggable element that sets the desired width of the column.
  * - guide - the helper guide that shows the desired width as a vertical guide.
  */
+var _currentTH = /*#__PURE__*/new WeakMap();
+var _currentCol = /*#__PURE__*/new WeakMap();
+var _selectedCols = /*#__PURE__*/new WeakMap();
+var _currentWidth = /*#__PURE__*/new WeakMap();
+var _newSize = /*#__PURE__*/new WeakMap();
+var _startY = /*#__PURE__*/new WeakMap();
+var _startWidth = /*#__PURE__*/new WeakMap();
+var _startOffset = /*#__PURE__*/new WeakMap();
+var _handle = /*#__PURE__*/new WeakMap();
+var _guide = /*#__PURE__*/new WeakMap();
+var _pressed = /*#__PURE__*/new WeakMap();
+var _isTriggeredByRMB = /*#__PURE__*/new WeakMap();
+var _dblclick = /*#__PURE__*/new WeakMap();
+var _autoresizeTimeout = /*#__PURE__*/new WeakMap();
+var _columnWidthsMap = /*#__PURE__*/new WeakMap();
 var _config = /*#__PURE__*/new WeakMap();
 var _onMapInit = /*#__PURE__*/new WeakSet();
 var _onMouseOver = /*#__PURE__*/new WeakSet();
@@ -74869,66 +74864,110 @@ class ManualColumnResize extends _base.BasePlugin {
      * @private
      */
     _classPrivateMethodInitSpec(this, _onMapInit);
-    (0, _defineProperty2.default)(this, "currentTH", null);
+    _classPrivateFieldInitSpec(this, _currentTH, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "currentCol", null);
+    _classPrivateFieldInitSpec(this, _currentCol, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number[]}
      */
-    (0, _defineProperty2.default)(this, "selectedCols", []);
+    _classPrivateFieldInitSpec(this, _selectedCols, {
+      writable: true,
+      value: []
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "currentWidth", null);
+    _classPrivateFieldInitSpec(this, _currentWidth, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "newSize", null);
+    _classPrivateFieldInitSpec(this, _newSize, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startY", null);
+    _classPrivateFieldInitSpec(this, _startY, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startWidth", null);
+    _classPrivateFieldInitSpec(this, _startWidth, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startOffset", null);
+    _classPrivateFieldInitSpec(this, _startOffset, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {HTMLElement}
      */
-    (0, _defineProperty2.default)(this, "handle", this.hot.rootDocument.createElement('DIV'));
+    _classPrivateFieldInitSpec(this, _handle, {
+      writable: true,
+      value: this.hot.rootDocument.createElement('DIV')
+    });
     /**
      * @type {HTMLElement}
      */
-    (0, _defineProperty2.default)(this, "guide", this.hot.rootDocument.createElement('DIV'));
+    _classPrivateFieldInitSpec(this, _guide, {
+      writable: true,
+      value: this.hot.rootDocument.createElement('DIV')
+    });
     /**
      * @type {boolean}
      */
-    (0, _defineProperty2.default)(this, "pressed", null);
+    _classPrivateFieldInitSpec(this, _pressed, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {boolean}
      */
-    (0, _defineProperty2.default)(this, "isTriggeredByRMB", false);
+    _classPrivateFieldInitSpec(this, _isTriggeredByRMB, {
+      writable: true,
+      value: false
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "dblclick", 0);
+    _classPrivateFieldInitSpec(this, _dblclick, {
+      writable: true,
+      value: 0
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "autoresizeTimeout", null);
+    _classPrivateFieldInitSpec(this, _autoresizeTimeout, {
+      writable: true,
+      value: null
+    });
     /**
      * PhysicalIndexToValueMap to keep and track widths for physical column indexes.
      *
-     * @private
      * @type {PhysicalIndexToValueMap}
      */
-    (0, _defineProperty2.default)(this, "columnWidthsMap", void 0);
+    _classPrivateFieldInitSpec(this, _columnWidthsMap, {
+      writable: true,
+      value: void 0
+    });
     /**
      * Private pool to save configuration from updateSettings.
      *
@@ -74938,8 +74977,8 @@ class ManualColumnResize extends _base.BasePlugin {
       writable: true,
       value: void 0
     });
-    (0, _element.addClass)(this.handle, 'manualColumnResizer');
-    (0, _element.addClass)(this.guide, 'manualColumnResizerGuide');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'manualColumnResizer');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'manualColumnResizerGuide');
   }
 
   /**
@@ -74967,9 +75006,9 @@ class ManualColumnResize extends _base.BasePlugin {
     if (this.enabled) {
       return;
     }
-    this.columnWidthsMap = new _translations.PhysicalIndexToValueMap();
-    this.columnWidthsMap.addLocalHook('init', () => _classPrivateMethodGet(this, _onMapInit, _onMapInit2).call(this));
-    this.hot.columnIndexMapper.registerMap(this.pluginName, this.columnWidthsMap);
+    (0, _classPrivateFieldSet2.default)(this, _columnWidthsMap, new _translations.PhysicalIndexToValueMap());
+    (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).addLocalHook('init', () => _classPrivateMethodGet(this, _onMapInit, _onMapInit2).call(this));
+    this.hot.columnIndexMapper.registerMap(this.pluginName, (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap));
     this.addHook('modifyColWidth', (width, col) => _classPrivateMethodGet(this, _onModifyColWidth, _onModifyColWidth2).call(this, width, col));
     this.addHook('beforeStretchingColumnWidth', (stretchedWidth, column) => _classPrivateMethodGet(this, _onBeforeStretchingColumnWidth, _onBeforeStretchingColumnWidth2).call(this, stretchedWidth, column));
     this.addHook('beforeColumnResize', (newSize, column, isDoubleClick) => _classPrivateMethodGet(this, _onBeforeColumnResize, _onBeforeColumnResize2).call(this, newSize, column, isDoubleClick));
@@ -74993,7 +75032,7 @@ class ManualColumnResize extends _base.BasePlugin {
    * Disables the plugin functionality for this Handsontable instance.
    */
   disablePlugin() {
-    (0, _classPrivateFieldSet2.default)(this, _config, this.columnWidthsMap.getValues());
+    (0, _classPrivateFieldSet2.default)(this, _config, (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).getValues());
     this.hot.columnIndexMapper.unregisterMap(this.pluginName);
     super.disablePlugin();
   }
@@ -75004,7 +75043,7 @@ class ManualColumnResize extends _base.BasePlugin {
    * @fires Hooks#persistentStateSave
    */
   saveManualColumnWidths() {
-    this.hot.runHooks('persistentStateSave', PERSISTENT_STATE_KEY, this.columnWidthsMap.getValues());
+    this.hot.runHooks('persistentStateSave', PERSISTENT_STATE_KEY, (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).getValues());
   }
 
   /**
@@ -75029,7 +75068,7 @@ class ManualColumnResize extends _base.BasePlugin {
   setManualSize(column, width) {
     const newWidth = Math.max(width, 20);
     const physicalColumn = this.hot.toPhysicalColumn(column);
-    this.columnWidthsMap.setValueAtIndex(physicalColumn, newWidth);
+    (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).setValueAtIndex(physicalColumn, newWidth);
     return newWidth;
   }
 
@@ -75040,7 +75079,7 @@ class ManualColumnResize extends _base.BasePlugin {
    */
   clearManualSize(column) {
     const physicalColumn = this.hot.toPhysicalColumn(column);
-    this.columnWidthsMap.setValueAtIndex(physicalColumn, null);
+    (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).setValueAtIndex(physicalColumn, null);
   }
   /**
    * Set the resize handle position.
@@ -75052,34 +75091,34 @@ class ManualColumnResize extends _base.BasePlugin {
     if (!TH.parentNode) {
       return;
     }
-    this.currentTH = TH;
+    (0, _classPrivateFieldSet2.default)(this, _currentTH, TH);
     const {
       _wt: wt
     } = this.hot.view;
-    const cellCoords = wt.wtTable.getCoords(this.currentTH);
+    const cellCoords = wt.wtTable.getCoords((0, _classPrivateFieldGet2.default)(this, _currentTH));
     const col = cellCoords.col;
 
     // Ignore column headers.
     if (col < 0) {
       return;
     }
-    const headerHeight = (0, _element.outerHeight)(this.currentTH);
-    const box = this.currentTH.getBoundingClientRect();
+    const headerHeight = (0, _element.outerHeight)((0, _classPrivateFieldGet2.default)(this, _currentTH));
+    const box = (0, _classPrivateFieldGet2.default)(this, _currentTH).getBoundingClientRect();
     // Read "fixedColumnsStart" through the Walkontable as in that context, the fixed columns
     // are modified (reduced by the number of hidden columns) by TableView module.
     const fixedColumn = col < wt.getSetting('fixedColumnsStart');
     let relativeHeaderPosition;
     if (fixedColumn) {
-      relativeHeaderPosition = wt.wtOverlays.topInlineStartCornerOverlay.getRelativeCellPosition(this.currentTH, cellCoords.row, cellCoords.col);
+      relativeHeaderPosition = wt.wtOverlays.topInlineStartCornerOverlay.getRelativeCellPosition((0, _classPrivateFieldGet2.default)(this, _currentTH), cellCoords.row, cellCoords.col);
     }
 
     // If the TH is not a child of the top-left overlay, recalculate using
     // the top overlay - as this overlay contains the rest of the headers.
     if (!relativeHeaderPosition) {
-      relativeHeaderPosition = wt.wtOverlays.topOverlay.getRelativeCellPosition(this.currentTH, cellCoords.row, cellCoords.col);
+      relativeHeaderPosition = wt.wtOverlays.topOverlay.getRelativeCellPosition((0, _classPrivateFieldGet2.default)(this, _currentTH), cellCoords.row, cellCoords.col);
     }
-    this.currentCol = this.hot.columnIndexMapper.getVisualFromRenderableIndex(col);
-    this.selectedCols = [];
+    (0, _classPrivateFieldSet2.default)(this, _currentCol, this.hot.columnIndexMapper.getVisualFromRenderableIndex(col));
+    (0, _classPrivateFieldSet2.default)(this, _selectedCols, []);
     const isFullColumnSelected = this.hot.selection.isSelectedByCorner() || this.hot.selection.isSelectedByColumnHeader();
     if (this.hot.selection.isSelected() && isFullColumnSelected) {
       const selectionRanges = this.hot.getSelectedRange();
@@ -75089,23 +75128,23 @@ class ManualColumnResize extends _base.BasePlugin {
 
         // Add every selected column for resize action.
         (0, _number.rangeEach)(fromColumn, toColumn, columnIndex => {
-          if (!this.selectedCols.includes(columnIndex)) {
-            this.selectedCols.push(columnIndex);
+          if (!(0, _classPrivateFieldGet2.default)(this, _selectedCols).includes(columnIndex)) {
+            (0, _classPrivateFieldGet2.default)(this, _selectedCols).push(columnIndex);
           }
         });
       });
     }
 
     // Resizing element beyond the current selection (also when there is no selection).
-    if (!this.selectedCols.includes(this.currentCol)) {
-      this.selectedCols = [this.currentCol];
+    if (!(0, _classPrivateFieldGet2.default)(this, _selectedCols).includes((0, _classPrivateFieldGet2.default)(this, _currentCol))) {
+      (0, _classPrivateFieldSet2.default)(this, _selectedCols, [(0, _classPrivateFieldGet2.default)(this, _currentCol)]);
     }
-    this.startOffset = relativeHeaderPosition.start - 6;
-    this.startWidth = parseInt(box.width, 10);
-    this.handle.style.top = `${relativeHeaderPosition.top}px`;
-    this.handle.style[this.inlineDir] = `${this.startOffset + this.startWidth}px`;
-    this.handle.style.height = `${headerHeight}px`;
-    this.hot.rootElement.appendChild(this.handle);
+    (0, _classPrivateFieldSet2.default)(this, _startOffset, relativeHeaderPosition.start - 6);
+    (0, _classPrivateFieldSet2.default)(this, _startWidth, parseInt(box.width, 10));
+    (0, _classPrivateFieldGet2.default)(this, _handle).style.top = `${relativeHeaderPosition.top}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style[this.inlineDir] = `${(0, _classPrivateFieldGet2.default)(this, _startOffset) + (0, _classPrivateFieldGet2.default)(this, _startWidth)}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style.height = `${headerHeight}px`;
+    this.hot.rootElement.appendChild((0, _classPrivateFieldGet2.default)(this, _handle));
   }
 
   /**
@@ -75114,7 +75153,7 @@ class ManualColumnResize extends _base.BasePlugin {
    * @private
    */
   refreshHandlePosition() {
-    this.handle.style[this.inlineDir] = `${this.startOffset + this.currentWidth}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style[this.inlineDir] = `${(0, _classPrivateFieldGet2.default)(this, _startOffset) + (0, _classPrivateFieldGet2.default)(this, _currentWidth)}px`;
   }
 
   /**
@@ -75123,15 +75162,15 @@ class ManualColumnResize extends _base.BasePlugin {
    * @private
    */
   setupGuidePosition() {
-    const handleHeight = parseInt((0, _element.outerHeight)(this.handle), 10);
-    const handleBottomPosition = parseInt(this.handle.style.top, 10) + handleHeight;
+    const handleHeight = parseInt((0, _element.outerHeight)((0, _classPrivateFieldGet2.default)(this, _handle)), 10);
+    const handleBottomPosition = parseInt((0, _classPrivateFieldGet2.default)(this, _handle).style.top, 10) + handleHeight;
     const maximumVisibleElementHeight = parseInt(this.hot.view.maximumVisibleElementHeight(0), 10);
-    (0, _element.addClass)(this.handle, 'active');
-    (0, _element.addClass)(this.guide, 'active');
-    this.guide.style.top = `${handleBottomPosition}px`;
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'active');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'active');
+    (0, _classPrivateFieldGet2.default)(this, _guide).style.top = `${handleBottomPosition}px`;
     this.refreshGuidePosition();
-    this.guide.style.height = `${maximumVisibleElementHeight - handleHeight}px`;
-    this.hot.rootElement.appendChild(this.guide);
+    (0, _classPrivateFieldGet2.default)(this, _guide).style.height = `${maximumVisibleElementHeight - handleHeight}px`;
+    this.hot.rootElement.appendChild((0, _classPrivateFieldGet2.default)(this, _guide));
   }
 
   /**
@@ -75140,7 +75179,7 @@ class ManualColumnResize extends _base.BasePlugin {
    * @private
    */
   refreshGuidePosition() {
-    this.guide.style[this.inlineDir] = this.handle.style[this.inlineDir];
+    (0, _classPrivateFieldGet2.default)(this, _guide).style[this.inlineDir] = (0, _classPrivateFieldGet2.default)(this, _handle).style[this.inlineDir];
   }
 
   /**
@@ -75149,8 +75188,8 @@ class ManualColumnResize extends _base.BasePlugin {
    * @private
    */
   hideHandleAndGuide() {
-    (0, _element.removeClass)(this.handle, 'active');
-    (0, _element.removeClass)(this.guide, 'active');
+    (0, _element.removeClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'active');
+    (0, _element.removeClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'active');
   }
 
   /**
@@ -75194,37 +75233,37 @@ class ManualColumnResize extends _base.BasePlugin {
       this.hot.view.adjustElementsSize(true);
     };
     const resize = (column, forceRender) => {
-      const hookNewSize = this.hot.runHooks('beforeColumnResize', this.newSize, column, true);
+      const hookNewSize = this.hot.runHooks('beforeColumnResize', (0, _classPrivateFieldGet2.default)(this, _newSize), column, true);
       if (hookNewSize !== undefined) {
-        this.newSize = hookNewSize;
+        (0, _classPrivateFieldSet2.default)(this, _newSize, hookNewSize);
       }
       if (this.hot.getSettings().stretchH === 'all') {
         this.clearManualSize(column);
       } else {
-        this.setManualSize(column, this.newSize); // double click sets by auto row size plugin
+        this.setManualSize(column, (0, _classPrivateFieldGet2.default)(this, _newSize)); // double click sets by auto row size plugin
       }
 
       this.saveManualColumnWidths();
-      this.hot.runHooks('afterColumnResize', this.newSize, column, true);
+      this.hot.runHooks('afterColumnResize', (0, _classPrivateFieldGet2.default)(this, _newSize), column, true);
       if (forceRender) {
         render();
       }
     };
-    if (this.dblclick >= 2) {
-      const selectedColsLength = this.selectedCols.length;
+    if ((0, _classPrivateFieldGet2.default)(this, _dblclick) >= 2) {
+      const selectedColsLength = (0, _classPrivateFieldGet2.default)(this, _selectedCols).length;
       if (selectedColsLength > 1) {
-        (0, _array.arrayEach)(this.selectedCols, selectedCol => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedCols), selectedCol => {
           resize(selectedCol);
         });
         render();
       } else {
-        (0, _array.arrayEach)(this.selectedCols, selectedCol => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedCols), selectedCol => {
           resize(selectedCol, true);
         });
       }
     }
-    this.dblclick = 0;
-    this.autoresizeTimeout = null;
+    (0, _classPrivateFieldSet2.default)(this, _dblclick, 0);
+    (0, _classPrivateFieldSet2.default)(this, _autoresizeTimeout, null);
   }
   /**
    * Binds the mouse events.
@@ -75240,7 +75279,7 @@ class ManualColumnResize extends _base.BasePlugin {
     this.eventManager.addEventListener(rootElement, 'mousedown', e => _classPrivateMethodGet(this, _onMouseDown, _onMouseDown2).call(this, e));
     this.eventManager.addEventListener(rootWindow, 'mousemove', e => _classPrivateMethodGet(this, _onMouseMove, _onMouseMove2).call(this, e));
     this.eventManager.addEventListener(rootWindow, 'mouseup', () => _classPrivateMethodGet(this, _onMouseUp, _onMouseUp2).call(this));
-    this.eventManager.addEventListener(this.handle, 'contextmenu', () => _classPrivateMethodGet(this, _onContextMenu, _onContextMenu2).call(this));
+    this.eventManager.addEventListener((0, _classPrivateFieldGet2.default)(this, _handle), 'contextmenu', () => _classPrivateMethodGet(this, _onContextMenu, _onContextMenu2).call(this));
   }
   /**
    * Destroys the plugin instance.
@@ -75256,20 +75295,20 @@ function _onMapInit2() {
   if (typeof loadedManualColumnWidths !== 'undefined') {
     this.hot.batchExecution(() => {
       loadedManualColumnWidths.forEach((width, physicalIndex) => {
-        this.columnWidthsMap.setValueAtIndex(physicalIndex, width);
+        (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).setValueAtIndex(physicalIndex, width);
       });
     }, true);
   } else if (Array.isArray(initialSetting)) {
     this.hot.batchExecution(() => {
       initialSetting.forEach((width, physicalIndex) => {
-        this.columnWidthsMap.setValueAtIndex(physicalIndex, width);
+        (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).setValueAtIndex(physicalIndex, width);
       });
     }, true);
     (0, _classPrivateFieldSet2.default)(this, _config, initialSetting);
   } else if (initialSetting === true && Array.isArray((0, _classPrivateFieldGet2.default)(this, _config))) {
     this.hot.batchExecution(() => {
       (0, _classPrivateFieldGet2.default)(this, _config).forEach((width, physicalIndex) => {
-        this.columnWidthsMap.setValueAtIndex(physicalIndex, width);
+        (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).setValueAtIndex(physicalIndex, width);
       });
     }, true);
   }
@@ -75282,7 +75321,7 @@ function _onMouseOver2(event) {
   }
 
   // A "mouseover" action is triggered right after executing "contextmenu" event. It should be ignored.
-  if (this.isTriggeredByRMB === true) {
+  if ((0, _classPrivateFieldGet2.default)(this, _isTriggeredByRMB) === true) {
     return;
   }
   if (this.checkIfColumnHeader(event.target)) {
@@ -75292,7 +75331,7 @@ function _onMouseOver2(event) {
     }
     const colspan = th.getAttribute('colspan');
     if (th && (colspan === null || colspan === '1')) {
-      if (!this.pressed) {
+      if (!(0, _classPrivateFieldGet2.default)(this, _pressed)) {
         this.setupHandlePosition(th);
       }
     }
@@ -75300,24 +75339,24 @@ function _onMouseOver2(event) {
 }
 function _onMouseDown2(event) {
   if ((0, _element.hasClass)(event.target, 'manualColumnResizer')) {
-    this.setupHandlePosition(this.currentTH);
+    this.setupHandlePosition((0, _classPrivateFieldGet2.default)(this, _currentTH));
     this.setupGuidePosition();
-    this.pressed = true;
-    if (this.autoresizeTimeout === null) {
-      this.autoresizeTimeout = setTimeout(() => this.afterMouseDownTimeout(), 500);
-      this.hot._registerTimeout(this.autoresizeTimeout);
+    (0, _classPrivateFieldSet2.default)(this, _pressed, true);
+    if ((0, _classPrivateFieldGet2.default)(this, _autoresizeTimeout) === null) {
+      (0, _classPrivateFieldSet2.default)(this, _autoresizeTimeout, setTimeout(() => this.afterMouseDownTimeout(), 500));
+      this.hot._registerTimeout((0, _classPrivateFieldGet2.default)(this, _autoresizeTimeout));
     }
-    this.dblclick += 1;
+    (0, _classPrivateFieldSet2.default)(this, _dblclick, (0, _classPrivateFieldGet2.default)(this, _dblclick) + 1);
     this.startX = event.pageX;
-    this.newSize = this.startWidth;
+    (0, _classPrivateFieldSet2.default)(this, _newSize, (0, _classPrivateFieldGet2.default)(this, _startWidth));
   }
 }
 function _onMouseMove2(event) {
-  if (this.pressed) {
+  if ((0, _classPrivateFieldGet2.default)(this, _pressed)) {
     const change = (event.pageX - this.startX) * this.hot.getDirectionFactor();
-    this.currentWidth = this.startWidth + change;
-    (0, _array.arrayEach)(this.selectedCols, selectedCol => {
-      this.newSize = this.setManualSize(selectedCol, this.currentWidth);
+    (0, _classPrivateFieldSet2.default)(this, _currentWidth, (0, _classPrivateFieldGet2.default)(this, _startWidth) + change);
+    (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedCols), selectedCol => {
+      (0, _classPrivateFieldSet2.default)(this, _newSize, this.setManualSize(selectedCol, (0, _classPrivateFieldGet2.default)(this, _currentWidth)));
     });
     this.refreshHandlePosition();
     this.refreshGuidePosition();
@@ -75330,50 +75369,50 @@ function _onMouseUp2() {
     this.hot.view.adjustElementsSize(true);
   };
   const resize = (column, forceRender) => {
-    this.hot.runHooks('beforeColumnResize', this.newSize, column, false);
+    this.hot.runHooks('beforeColumnResize', (0, _classPrivateFieldGet2.default)(this, _newSize), column, false);
     if (forceRender) {
       render();
     }
     this.saveManualColumnWidths();
-    this.hot.runHooks('afterColumnResize', this.newSize, column, false);
+    this.hot.runHooks('afterColumnResize', (0, _classPrivateFieldGet2.default)(this, _newSize), column, false);
   };
-  if (this.pressed) {
+  if ((0, _classPrivateFieldGet2.default)(this, _pressed)) {
     this.hideHandleAndGuide();
-    this.pressed = false;
-    if (this.newSize !== this.startWidth) {
-      const selectedColsLength = this.selectedCols.length;
+    (0, _classPrivateFieldSet2.default)(this, _pressed, false);
+    if ((0, _classPrivateFieldGet2.default)(this, _newSize) !== (0, _classPrivateFieldGet2.default)(this, _startWidth)) {
+      const selectedColsLength = (0, _classPrivateFieldGet2.default)(this, _selectedCols).length;
       if (selectedColsLength > 1) {
-        (0, _array.arrayEach)(this.selectedCols, selectedCol => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedCols), selectedCol => {
           resize(selectedCol);
         });
         render();
       } else {
-        (0, _array.arrayEach)(this.selectedCols, selectedCol => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedCols), selectedCol => {
           resize(selectedCol, true);
         });
       }
     }
-    this.setupHandlePosition(this.currentTH);
+    this.setupHandlePosition((0, _classPrivateFieldGet2.default)(this, _currentTH));
   }
 }
 function _onContextMenu2() {
   this.hideHandleAndGuide();
-  this.hot.rootElement.removeChild(this.handle);
-  this.hot.rootElement.removeChild(this.guide);
-  this.pressed = false;
-  this.isTriggeredByRMB = true;
+  this.hot.rootElement.removeChild((0, _classPrivateFieldGet2.default)(this, _handle));
+  this.hot.rootElement.removeChild((0, _classPrivateFieldGet2.default)(this, _guide));
+  (0, _classPrivateFieldSet2.default)(this, _pressed, false);
+  (0, _classPrivateFieldSet2.default)(this, _isTriggeredByRMB, true);
 
   // There is thrown "mouseover" event right after opening a context menu. This flag inform that handle
   // shouldn't be drawn just after removing it.
   this.hot._registerImmediate(() => {
-    this.isTriggeredByRMB = false;
+    (0, _classPrivateFieldSet2.default)(this, _isTriggeredByRMB, false);
   });
 }
 function _onModifyColWidth2(width, column) {
   let newWidth = width;
   if (this.enabled) {
     const physicalColumn = this.hot.toPhysicalColumn(column);
-    const columnWidth = this.columnWidthsMap.getValueAtIndex(physicalColumn);
+    const columnWidth = (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).getValueAtIndex(physicalColumn);
     if (this.hot.getSettings()[PLUGIN_KEY] && columnWidth) {
       newWidth = columnWidth;
     }
@@ -75381,7 +75420,7 @@ function _onModifyColWidth2(width, column) {
   return newWidth;
 }
 function _onBeforeStretchingColumnWidth2(stretchedWidth, column) {
-  let width = this.columnWidthsMap.getValueAtIndex(column);
+  let width = (0, _classPrivateFieldGet2.default)(this, _columnWidthsMap).getValueAtIndex(column);
   if (width === null) {
     width = stretchedWidth;
   }
@@ -75416,7 +75455,6 @@ var _interopRequireDefault = __webpack_require__(1);
 exports.__esModule = true;
 __webpack_require__(8);
 __webpack_require__(78);
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(121));
 var _classPrivateFieldSet2 = _interopRequireDefault(__webpack_require__(136));
 var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _base = __webpack_require__(423);
@@ -75424,8 +75462,8 @@ var _pluginHooks = _interopRequireDefault(__webpack_require__(128));
 var _array = __webpack_require__(113);
 var _element = __webpack_require__(107);
 var _number = __webpack_require__(141);
-var _backlight = _interopRequireDefault(__webpack_require__(607));
-var _guideline = _interopRequireDefault(__webpack_require__(609));
+var _backlight2 = _interopRequireDefault(__webpack_require__(607));
+var _guideline2 = _interopRequireDefault(__webpack_require__(609));
 __webpack_require__(610);
 function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -75466,6 +75504,8 @@ const CSS_AFTER_SELECTION = 'after-selection--rows';
  * @class ManualRowMove
  * @plugin ManualRowMove
  */
+var _backlight = /*#__PURE__*/new WeakMap();
+var _guideline = /*#__PURE__*/new WeakMap();
 var _rowsToMove = /*#__PURE__*/new WeakMap();
 var _pressed = /*#__PURE__*/new WeakMap();
 var _target = /*#__PURE__*/new WeakMap();
@@ -75520,17 +75560,21 @@ class ManualRowMove extends _base.BasePlugin {
     /**
      * Backlight UI object.
      *
-     * @private
      * @type {object}
      */
-    (0, _defineProperty2.default)(this, "backlight", new _backlight.default(this.hot));
+    _classPrivateFieldInitSpec(this, _backlight, {
+      writable: true,
+      value: new _backlight2.default(this.hot)
+    });
     /**
      * Guideline UI object.
      *
-     * @private
      * @type {object}
      */
-    (0, _defineProperty2.default)(this, "guideline", new _guideline.default(this.hot));
+    _classPrivateFieldInitSpec(this, _guideline, {
+      writable: true,
+      value: new _guideline2.default(this.hot)
+    });
     /**
      * @type {number[]}
      */
@@ -75630,8 +75674,8 @@ class ManualRowMove extends _base.BasePlugin {
   disablePlugin() {
     (0, _element.removeClass)(this.hot.rootElement, CSS_PLUGIN);
     this.unregisterEvents();
-    this.backlight.destroy();
-    this.guideline.destroy();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).destroy();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).destroy();
     super.disablePlugin();
   }
 
@@ -75896,8 +75940,8 @@ class ManualRowMove extends _base.BasePlugin {
     const pixelsRelToTableStart = (0, _classPrivateFieldGet2.default)(this, _target).eventPageY - pixelsAbove + tableScroll;
     const hiderHeight = wtTable.hider.offsetHeight;
     const tbodyOffsetTop = wtTable.TBODY.offsetTop;
-    const backlightElemMarginTop = this.backlight.getOffset().top;
-    const backlightElemHeight = this.backlight.getSize().height;
+    const backlightElemMarginTop = (0, _classPrivateFieldGet2.default)(this, _backlight).getOffset().top;
+    const backlightElemHeight = (0, _classPrivateFieldGet2.default)(this, _backlight).getSize().height;
     const tdMiddle = TD.offsetHeight / 2;
     const tdHeight = TD.offsetHeight;
     let tdStartPixel = this.hot.view.THEAD.offsetHeight + this.getRowsHeight(0, coords.row - 1);
@@ -75930,8 +75974,8 @@ class ManualRowMove extends _base.BasePlugin {
       // prevent display guideline below table
       guidelineTop = hiderHeight - 1;
     }
-    this.backlight.setPosition(backlightTop);
-    this.guideline.setPosition(guidelineTop);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(backlightTop);
+    (0, _classPrivateFieldGet2.default)(this, _guideline).setPosition(guidelineTop);
   }
 
   /**
@@ -75961,15 +76005,15 @@ class ManualRowMove extends _base.BasePlugin {
    * @private
    */
   buildPluginUI() {
-    this.backlight.build();
-    this.guideline.build();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).build();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).build();
   }
   /**
    * Destroys the plugin instance.
    */
   destroy() {
-    this.backlight.destroy();
-    this.guideline.destroy();
+    (0, _classPrivateFieldGet2.default)(this, _backlight).destroy();
+    (0, _classPrivateFieldGet2.default)(this, _guideline).destroy();
     super.destroy();
   }
 }
@@ -75987,11 +76031,11 @@ function _onBeforeOnCellMouseDown2(event, coords, TD, controller) {
     (0, _element.removeClass)(this.hot.rootElement, [CSS_ON_MOVING, CSS_SHOW_UI]);
     return;
   }
-  const guidelineIsNotReady = this.guideline.isBuilt() && !this.guideline.isAppended();
-  const backlightIsNotReady = this.backlight.isBuilt() && !this.backlight.isAppended();
+  const guidelineIsNotReady = (0, _classPrivateFieldGet2.default)(this, _guideline).isBuilt() && !(0, _classPrivateFieldGet2.default)(this, _guideline).isAppended();
+  const backlightIsNotReady = (0, _classPrivateFieldGet2.default)(this, _backlight).isBuilt() && !(0, _classPrivateFieldGet2.default)(this, _backlight).isAppended();
   if (guidelineIsNotReady && backlightIsNotReady) {
-    this.guideline.appendTo(wtTable.hider);
-    this.backlight.appendTo(wtTable.hider);
+    (0, _classPrivateFieldGet2.default)(this, _guideline).appendTo(wtTable.hider);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).appendTo(wtTable.hider);
   }
   const {
     from,
@@ -76008,9 +76052,9 @@ function _onBeforeOnCellMouseDown2(event, coords, TD, controller) {
     (0, _classPrivateFieldSet2.default)(this, _rowsToMove, this.prepareRowsToMoving());
     const leftPos = wtTable.holder.scrollLeft + wtViewport.getRowHeaderWidth();
     const topOffset = this.getRowsHeight(start, coords.row - 1) + event.offsetY;
-    this.backlight.setPosition(null, leftPos);
-    this.backlight.setSize(wtTable.hider.offsetWidth - leftPos, this.getRowsHeight(start, end));
-    this.backlight.setOffset(-topOffset, null);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(null, leftPos);
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setSize(wtTable.hider.offsetWidth - leftPos, this.getRowsHeight(start, end));
+    (0, _classPrivateFieldGet2.default)(this, _backlight).setOffset(-topOffset, null);
     (0, _element.addClass)(this.hot.rootElement, CSS_ON_MOVING);
     this.refreshPositions();
   } else {
@@ -76071,8 +76115,8 @@ function _onAfterScrollHorizontally2() {
   const headerWidth = this.hot.view._wt.wtViewport.getRowHeaderWidth();
   const scrollLeft = wtTable.holder.scrollLeft;
   const posLeft = headerWidth + scrollLeft;
-  this.backlight.setPosition(null, posLeft);
-  this.backlight.setSize(wtTable.hider.offsetWidth - posLeft);
+  (0, _classPrivateFieldGet2.default)(this, _backlight).setPosition(null, posLeft);
+  (0, _classPrivateFieldGet2.default)(this, _backlight).setSize(wtTable.hider.offsetWidth - posLeft);
 }
 function _onAfterLoadData2() {
   this.moveBySettingsOrLoad();
@@ -76338,13 +76382,12 @@ exports.ManualRowResize = _manualRowResize.ManualRowResize;
 "use strict";
 
 
+__webpack_require__(78);
 var _interopRequireDefault = __webpack_require__(1);
 exports.__esModule = true;
 __webpack_require__(8);
-__webpack_require__(78);
-var _defineProperty2 = _interopRequireDefault(__webpack_require__(121));
-var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _classPrivateFieldSet2 = _interopRequireDefault(__webpack_require__(136));
+var _classPrivateFieldGet2 = _interopRequireDefault(__webpack_require__(133));
 var _base = __webpack_require__(423);
 var _element = __webpack_require__(107);
 var _array = __webpack_require__(113);
@@ -76375,6 +76418,21 @@ const PERSISTENT_STATE_KEY = 'manualRowHeights';
  * - handle - the draggable element that sets the desired height of the row.
  * - guide - the helper guide that shows the desired height as a horizontal guide.
  */
+var _currentTH = /*#__PURE__*/new WeakMap();
+var _currentRow = /*#__PURE__*/new WeakMap();
+var _selectedRows = /*#__PURE__*/new WeakMap();
+var _currentHeight = /*#__PURE__*/new WeakMap();
+var _newSize = /*#__PURE__*/new WeakMap();
+var _startY = /*#__PURE__*/new WeakMap();
+var _startHeight = /*#__PURE__*/new WeakMap();
+var _startOffset = /*#__PURE__*/new WeakMap();
+var _handle = /*#__PURE__*/new WeakMap();
+var _guide = /*#__PURE__*/new WeakMap();
+var _pressed = /*#__PURE__*/new WeakMap();
+var _isTriggeredByRMB = /*#__PURE__*/new WeakMap();
+var _dblclick = /*#__PURE__*/new WeakMap();
+var _autoresizeTimeout = /*#__PURE__*/new WeakMap();
+var _rowHeightsMap = /*#__PURE__*/new WeakMap();
 var _config = /*#__PURE__*/new WeakMap();
 var _onMouseOver = /*#__PURE__*/new WeakSet();
 var _onMouseDown = /*#__PURE__*/new WeakSet();
@@ -76438,66 +76496,110 @@ class ManualRowResize extends _base.BasePlugin {
      * @param {MouseEvent} event The mouse event.
      */
     _classPrivateMethodInitSpec(this, _onMouseOver);
-    (0, _defineProperty2.default)(this, "currentTH", null);
+    _classPrivateFieldInitSpec(this, _currentTH, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "currentRow", null);
+    _classPrivateFieldInitSpec(this, _currentRow, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number[]}
      */
-    (0, _defineProperty2.default)(this, "selectedRows", []);
+    _classPrivateFieldInitSpec(this, _selectedRows, {
+      writable: true,
+      value: []
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "currentHeight", null);
+    _classPrivateFieldInitSpec(this, _currentHeight, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "newSize", null);
+    _classPrivateFieldInitSpec(this, _newSize, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startY", null);
+    _classPrivateFieldInitSpec(this, _startY, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startHeight", null);
+    _classPrivateFieldInitSpec(this, _startHeight, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "startOffset", null);
+    _classPrivateFieldInitSpec(this, _startOffset, {
+      writable: true,
+      value: null
+    });
     /**
      * @type {HTMLElement}
      */
-    (0, _defineProperty2.default)(this, "handle", this.hot.rootDocument.createElement('DIV'));
+    _classPrivateFieldInitSpec(this, _handle, {
+      writable: true,
+      value: this.hot.rootDocument.createElement('DIV')
+    });
     /**
      * @type {HTMLElement}
      */
-    (0, _defineProperty2.default)(this, "guide", this.hot.rootDocument.createElement('DIV'));
+    _classPrivateFieldInitSpec(this, _guide, {
+      writable: true,
+      value: this.hot.rootDocument.createElement('DIV')
+    });
     /**
      * @type {boolean}
      */
-    (0, _defineProperty2.default)(this, "pressed", false);
+    _classPrivateFieldInitSpec(this, _pressed, {
+      writable: true,
+      value: false
+    });
     /**
      * @type {boolean}
      */
-    (0, _defineProperty2.default)(this, "isTriggeredByRMB", false);
+    _classPrivateFieldInitSpec(this, _isTriggeredByRMB, {
+      writable: true,
+      value: false
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "dblclick", 0);
+    _classPrivateFieldInitSpec(this, _dblclick, {
+      writable: true,
+      value: 0
+    });
     /**
      * @type {number}
      */
-    (0, _defineProperty2.default)(this, "autoresizeTimeout", null);
+    _classPrivateFieldInitSpec(this, _autoresizeTimeout, {
+      writable: true,
+      value: null
+    });
     /**
      * PhysicalIndexToValueMap to keep and track widths for physical row indexes.
      *
-     * @private
      * @type {PhysicalIndexToValueMap}
      */
-    (0, _defineProperty2.default)(this, "rowHeightsMap", void 0);
+    _classPrivateFieldInitSpec(this, _rowHeightsMap, {
+      writable: true,
+      value: void 0
+    });
     /**
      * Private pool to save configuration from updateSettings.
      *
@@ -76507,8 +76609,8 @@ class ManualRowResize extends _base.BasePlugin {
       writable: true,
       value: void 0
     });
-    (0, _element.addClass)(this.handle, 'manualRowResizer');
-    (0, _element.addClass)(this.guide, 'manualRowResizerGuide');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'manualRowResizer');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'manualRowResizerGuide');
   }
 
   /**
@@ -76536,9 +76638,9 @@ class ManualRowResize extends _base.BasePlugin {
     if (this.enabled) {
       return;
     }
-    this.rowHeightsMap = new _translations.PhysicalIndexToValueMap();
-    this.rowHeightsMap.addLocalHook('init', () => _classPrivateMethodGet(this, _onMapInit, _onMapInit2).call(this));
-    this.hot.rowIndexMapper.registerMap(this.pluginName, this.rowHeightsMap);
+    (0, _classPrivateFieldSet2.default)(this, _rowHeightsMap, new _translations.PhysicalIndexToValueMap());
+    (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).addLocalHook('init', () => _classPrivateMethodGet(this, _onMapInit, _onMapInit2).call(this));
+    this.hot.rowIndexMapper.registerMap(this.pluginName, (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap));
     this.addHook('modifyRowHeight', (height, row) => _classPrivateMethodGet(this, _onModifyRowHeight, _onModifyRowHeight2).call(this, height, row));
     this.bindEvents();
     super.enablePlugin();
@@ -76560,7 +76662,7 @@ class ManualRowResize extends _base.BasePlugin {
    * Disables the plugin functionality for this Handsontable instance.
    */
   disablePlugin() {
-    (0, _classPrivateFieldSet2.default)(this, _config, this.rowHeightsMap.getValues());
+    (0, _classPrivateFieldSet2.default)(this, _config, (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).getValues());
     this.hot.rowIndexMapper.unregisterMap(this.pluginName);
     super.disablePlugin();
   }
@@ -76572,7 +76674,7 @@ class ManualRowResize extends _base.BasePlugin {
    * @fires Hooks#persistentStateSave
    */
   saveManualRowHeights() {
-    this.hot.runHooks('persistentStateSave', PERSISTENT_STATE_KEY, this.rowHeightsMap.getValues());
+    this.hot.runHooks('persistentStateSave', PERSISTENT_STATE_KEY, (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).getValues());
   }
 
   /**
@@ -76598,7 +76700,7 @@ class ManualRowResize extends _base.BasePlugin {
   setManualSize(row, height) {
     const physicalRow = this.hot.toPhysicalRow(row);
     const newHeight = Math.max(height, _src.ViewportRowsCalculator.DEFAULT_HEIGHT);
-    this.rowHeightsMap.setValueAtIndex(physicalRow, newHeight);
+    (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).setValueAtIndex(physicalRow, newHeight);
     return newHeight;
   }
 
@@ -76609,40 +76711,40 @@ class ManualRowResize extends _base.BasePlugin {
    * @param {HTMLCellElement} TH TH HTML element.
    */
   setupHandlePosition(TH) {
-    this.currentTH = TH;
+    (0, _classPrivateFieldSet2.default)(this, _currentTH, TH);
     const {
       view
     } = this.hot;
     const {
       _wt: wt
     } = view;
-    const cellCoords = wt.wtTable.getCoords(this.currentTH);
+    const cellCoords = wt.wtTable.getCoords((0, _classPrivateFieldGet2.default)(this, _currentTH));
     const row = cellCoords.row;
 
     // Ignore row headers.
     if (row < 0) {
       return;
     }
-    const headerWidth = (0, _element.outerWidth)(this.currentTH);
-    const box = this.currentTH.getBoundingClientRect();
+    const headerWidth = (0, _element.outerWidth)((0, _classPrivateFieldGet2.default)(this, _currentTH));
+    const box = (0, _classPrivateFieldGet2.default)(this, _currentTH).getBoundingClientRect();
     // Read "fixedRowsTop" and "fixedRowsBottom" through the Walkontable as in that context, the fixed
     // rows are modified (reduced by the number of hidden rows) by TableView module.
     const fixedRowTop = row < wt.getSetting('fixedRowsTop');
     const fixedRowBottom = row >= view.countNotHiddenRowIndexes(0, 1) - wt.getSetting('fixedRowsBottom');
     let relativeHeaderPosition;
     if (fixedRowTop) {
-      relativeHeaderPosition = wt.wtOverlays.topInlineStartCornerOverlay.getRelativeCellPosition(this.currentTH, cellCoords.row, cellCoords.col);
+      relativeHeaderPosition = wt.wtOverlays.topInlineStartCornerOverlay.getRelativeCellPosition((0, _classPrivateFieldGet2.default)(this, _currentTH), cellCoords.row, cellCoords.col);
     } else if (fixedRowBottom) {
-      relativeHeaderPosition = wt.wtOverlays.bottomInlineStartCornerOverlay.getRelativeCellPosition(this.currentTH, cellCoords.row, cellCoords.col);
+      relativeHeaderPosition = wt.wtOverlays.bottomInlineStartCornerOverlay.getRelativeCellPosition((0, _classPrivateFieldGet2.default)(this, _currentTH), cellCoords.row, cellCoords.col);
     }
 
     // If the TH is not a child of the top-left/bottom-left overlay, recalculate using
     // the left overlay - as this overlay contains the rest of the headers.
     if (!relativeHeaderPosition) {
-      relativeHeaderPosition = wt.wtOverlays.inlineStartOverlay.getRelativeCellPosition(this.currentTH, cellCoords.row, cellCoords.col);
+      relativeHeaderPosition = wt.wtOverlays.inlineStartOverlay.getRelativeCellPosition((0, _classPrivateFieldGet2.default)(this, _currentTH), cellCoords.row, cellCoords.col);
     }
-    this.currentRow = this.hot.rowIndexMapper.getVisualFromRenderableIndex(row);
-    this.selectedRows = [];
+    (0, _classPrivateFieldSet2.default)(this, _currentRow, this.hot.rowIndexMapper.getVisualFromRenderableIndex(row));
+    (0, _classPrivateFieldSet2.default)(this, _selectedRows, []);
     const isFullRowSelected = this.hot.selection.isSelectedByCorner() || this.hot.selection.isSelectedByRowHeader();
     if (this.hot.selection.isSelected() && isFullRowSelected) {
       const selectionRanges = this.hot.getSelectedRange();
@@ -76652,23 +76754,23 @@ class ManualRowResize extends _base.BasePlugin {
 
         // Add every selected row for resize action.
         (0, _number.rangeEach)(fromRow, toRow, rowIndex => {
-          if (!this.selectedRows.includes(rowIndex)) {
-            this.selectedRows.push(rowIndex);
+          if (!(0, _classPrivateFieldGet2.default)(this, _selectedRows).includes(rowIndex)) {
+            (0, _classPrivateFieldGet2.default)(this, _selectedRows).push(rowIndex);
           }
         });
       });
     }
 
     // Resizing element beyond the current selection (also when there is no selection).
-    if (!this.selectedRows.includes(this.currentRow)) {
-      this.selectedRows = [this.currentRow];
+    if (!(0, _classPrivateFieldGet2.default)(this, _selectedRows).includes((0, _classPrivateFieldGet2.default)(this, _currentRow))) {
+      (0, _classPrivateFieldSet2.default)(this, _selectedRows, [(0, _classPrivateFieldGet2.default)(this, _currentRow)]);
     }
-    this.startOffset = relativeHeaderPosition.top - 6;
-    this.startHeight = parseInt(box.height, 10);
-    this.handle.style.top = `${this.startOffset + this.startHeight}px`;
-    this.handle.style[this.inlineDir] = `${relativeHeaderPosition.start}px`;
-    this.handle.style.width = `${headerWidth}px`;
-    this.hot.rootElement.appendChild(this.handle);
+    (0, _classPrivateFieldSet2.default)(this, _startOffset, relativeHeaderPosition.top - 6);
+    (0, _classPrivateFieldSet2.default)(this, _startHeight, parseInt(box.height, 10));
+    (0, _classPrivateFieldGet2.default)(this, _handle).style.top = `${(0, _classPrivateFieldGet2.default)(this, _startOffset) + (0, _classPrivateFieldGet2.default)(this, _startHeight)}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style[this.inlineDir] = `${relativeHeaderPosition.start}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style.width = `${headerWidth}px`;
+    this.hot.rootElement.appendChild((0, _classPrivateFieldGet2.default)(this, _handle));
   }
 
   /**
@@ -76677,7 +76779,7 @@ class ManualRowResize extends _base.BasePlugin {
    * @private
    */
   refreshHandlePosition() {
-    this.handle.style.top = `${this.startOffset + this.currentHeight}px`;
+    (0, _classPrivateFieldGet2.default)(this, _handle).style.top = `${(0, _classPrivateFieldGet2.default)(this, _startOffset) + (0, _classPrivateFieldGet2.default)(this, _currentHeight)}px`;
   }
 
   /**
@@ -76686,15 +76788,15 @@ class ManualRowResize extends _base.BasePlugin {
    * @private
    */
   setupGuidePosition() {
-    const handleWidth = parseInt((0, _element.outerWidth)(this.handle), 10);
-    const handleEndPosition = parseInt(this.handle.style[this.inlineDir], 10) + handleWidth;
+    const handleWidth = parseInt((0, _element.outerWidth)((0, _classPrivateFieldGet2.default)(this, _handle)), 10);
+    const handleEndPosition = parseInt((0, _classPrivateFieldGet2.default)(this, _handle).style[this.inlineDir], 10) + handleWidth;
     const maximumVisibleElementWidth = parseInt(this.hot.view.maximumVisibleElementWidth(0), 10);
-    (0, _element.addClass)(this.handle, 'active');
-    (0, _element.addClass)(this.guide, 'active');
-    this.guide.style.top = this.handle.style.top;
-    this.guide.style[this.inlineDir] = `${handleEndPosition}px`;
-    this.guide.style.width = `${maximumVisibleElementWidth - handleWidth}px`;
-    this.hot.rootElement.appendChild(this.guide);
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'active');
+    (0, _element.addClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'active');
+    (0, _classPrivateFieldGet2.default)(this, _guide).style.top = (0, _classPrivateFieldGet2.default)(this, _handle).style.top;
+    (0, _classPrivateFieldGet2.default)(this, _guide).style[this.inlineDir] = `${handleEndPosition}px`;
+    (0, _classPrivateFieldGet2.default)(this, _guide).style.width = `${maximumVisibleElementWidth - handleWidth}px`;
+    this.hot.rootElement.appendChild((0, _classPrivateFieldGet2.default)(this, _guide));
   }
 
   /**
@@ -76703,7 +76805,7 @@ class ManualRowResize extends _base.BasePlugin {
    * @private
    */
   refreshGuidePosition() {
-    this.guide.style.top = this.handle.style.top;
+    (0, _classPrivateFieldGet2.default)(this, _guide).style.top = (0, _classPrivateFieldGet2.default)(this, _handle).style.top;
   }
 
   /**
@@ -76712,8 +76814,8 @@ class ManualRowResize extends _base.BasePlugin {
    * @private
    */
   hideHandleAndGuide() {
-    (0, _element.removeClass)(this.handle, 'active');
-    (0, _element.removeClass)(this.guide, 'active');
+    (0, _element.removeClass)((0, _classPrivateFieldGet2.default)(this, _handle), 'active');
+    (0, _element.removeClass)((0, _classPrivateFieldGet2.default)(this, _guide), 'active');
   }
 
   /**
@@ -76756,10 +76858,10 @@ class ManualRowResize extends _base.BasePlugin {
   getActualRowHeight(row) {
     // TODO: this should utilize `this.hot.getRowHeight` after it's fixed and working properly.
     const walkontableHeight = this.hot.view._wt.wtTable.getRowHeight(row);
-    if (walkontableHeight !== undefined && this.newSize < walkontableHeight) {
+    if (walkontableHeight !== undefined && (0, _classPrivateFieldGet2.default)(this, _newSize) < walkontableHeight) {
       return walkontableHeight;
     }
-    return this.newSize;
+    return (0, _classPrivateFieldGet2.default)(this, _newSize);
   }
   /**
    * Auto-size row after doubleclick - callback.
@@ -76777,30 +76879,30 @@ class ManualRowResize extends _base.BasePlugin {
     const resize = (row, forceRender) => {
       const hookNewSize = this.hot.runHooks('beforeRowResize', this.getActualRowHeight(row), row, true);
       if (hookNewSize !== undefined) {
-        this.newSize = hookNewSize;
+        (0, _classPrivateFieldSet2.default)(this, _newSize, hookNewSize);
       }
-      this.setManualSize(row, this.newSize); // double click sets auto row size
+      this.setManualSize(row, (0, _classPrivateFieldGet2.default)(this, _newSize)); // double click sets auto row size
 
       this.hot.runHooks('afterRowResize', this.getActualRowHeight(row), row, true);
       if (forceRender) {
         render();
       }
     };
-    if (this.dblclick >= 2) {
-      const selectedRowsLength = this.selectedRows.length;
+    if ((0, _classPrivateFieldGet2.default)(this, _dblclick) >= 2) {
+      const selectedRowsLength = (0, _classPrivateFieldGet2.default)(this, _selectedRows).length;
       if (selectedRowsLength > 1) {
-        (0, _array.arrayEach)(this.selectedRows, selectedRow => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedRows), selectedRow => {
           resize(selectedRow);
         });
         render();
       } else {
-        (0, _array.arrayEach)(this.selectedRows, selectedRow => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedRows), selectedRow => {
           resize(selectedRow, true);
         });
       }
     }
-    this.dblclick = 0;
-    this.autoresizeTimeout = null;
+    (0, _classPrivateFieldSet2.default)(this, _dblclick, 0);
+    (0, _classPrivateFieldSet2.default)(this, _autoresizeTimeout, null);
   }
   /**
    * Binds the mouse events.
@@ -76816,7 +76918,7 @@ class ManualRowResize extends _base.BasePlugin {
     this.eventManager.addEventListener(rootElement, 'mousedown', e => _classPrivateMethodGet(this, _onMouseDown, _onMouseDown2).call(this, e));
     this.eventManager.addEventListener(rootWindow, 'mousemove', e => _classPrivateMethodGet(this, _onMouseMove, _onMouseMove2).call(this, e));
     this.eventManager.addEventListener(rootWindow, 'mouseup', () => _classPrivateMethodGet(this, _onMouseUp, _onMouseUp2).call(this));
-    this.eventManager.addEventListener(this.handle, 'contextmenu', () => _classPrivateMethodGet(this, _onContextMenu, _onContextMenu2).call(this));
+    this.eventManager.addEventListener((0, _classPrivateFieldGet2.default)(this, _handle), 'contextmenu', () => _classPrivateMethodGet(this, _onContextMenu, _onContextMenu2).call(this));
   }
   /**
    * Destroys the plugin instance.
@@ -76834,13 +76936,13 @@ function _onMouseOver2(event) {
   }
 
   // A "mouseover" action is triggered right after executing "contextmenu" event. It should be ignored.
-  if (this.isTriggeredByRMB === true) {
+  if ((0, _classPrivateFieldGet2.default)(this, _isTriggeredByRMB) === true) {
     return;
   }
   if (this.checkIfRowHeader(event.target)) {
     const th = this.getClosestTHParent(event.target);
     if (th) {
-      if (!this.pressed) {
+      if (!(0, _classPrivateFieldGet2.default)(this, _pressed)) {
         this.setupHandlePosition(th);
       }
     }
@@ -76848,23 +76950,23 @@ function _onMouseOver2(event) {
 }
 function _onMouseDown2(event) {
   if ((0, _element.hasClass)(event.target, 'manualRowResizer')) {
-    this.setupHandlePosition(this.currentTH);
+    this.setupHandlePosition((0, _classPrivateFieldGet2.default)(this, _currentTH));
     this.setupGuidePosition();
-    this.pressed = true;
-    if (this.autoresizeTimeout === null) {
-      this.autoresizeTimeout = setTimeout(() => this.afterMouseDownTimeout(), 500);
-      this.hot._registerTimeout(this.autoresizeTimeout);
+    (0, _classPrivateFieldSet2.default)(this, _pressed, true);
+    if ((0, _classPrivateFieldGet2.default)(this, _autoresizeTimeout) === null) {
+      (0, _classPrivateFieldSet2.default)(this, _autoresizeTimeout, setTimeout(() => this.afterMouseDownTimeout(), 500));
+      this.hot._registerTimeout((0, _classPrivateFieldGet2.default)(this, _autoresizeTimeout));
     }
-    this.dblclick += 1;
-    this.startY = event.pageY;
-    this.newSize = this.startHeight;
+    (0, _classPrivateFieldSet2.default)(this, _dblclick, (0, _classPrivateFieldGet2.default)(this, _dblclick) + 1);
+    (0, _classPrivateFieldSet2.default)(this, _startY, event.pageY);
+    (0, _classPrivateFieldSet2.default)(this, _newSize, (0, _classPrivateFieldGet2.default)(this, _startHeight));
   }
 }
 function _onMouseMove2(event) {
-  if (this.pressed) {
-    this.currentHeight = this.startHeight + (event.pageY - this.startY);
-    (0, _array.arrayEach)(this.selectedRows, selectedRow => {
-      this.newSize = this.setManualSize(selectedRow, this.currentHeight);
+  if ((0, _classPrivateFieldGet2.default)(this, _pressed)) {
+    (0, _classPrivateFieldSet2.default)(this, _currentHeight, (0, _classPrivateFieldGet2.default)(this, _startHeight) + (event.pageY - (0, _classPrivateFieldGet2.default)(this, _startY)));
+    (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedRows), selectedRow => {
+      (0, _classPrivateFieldSet2.default)(this, _newSize, this.setManualSize(selectedRow, (0, _classPrivateFieldGet2.default)(this, _currentHeight)));
     });
     this.refreshHandlePosition();
     this.refreshGuidePosition();
@@ -76884,43 +76986,43 @@ function _onMouseUp2() {
     this.saveManualRowHeights();
     this.hot.runHooks('afterRowResize', this.getActualRowHeight(row), row, false);
   };
-  if (this.pressed) {
+  if ((0, _classPrivateFieldGet2.default)(this, _pressed)) {
     this.hideHandleAndGuide();
-    this.pressed = false;
-    if (this.newSize !== this.startHeight) {
-      const selectedRowsLength = this.selectedRows.length;
+    (0, _classPrivateFieldSet2.default)(this, _pressed, false);
+    if ((0, _classPrivateFieldGet2.default)(this, _newSize) !== (0, _classPrivateFieldGet2.default)(this, _startHeight)) {
+      const selectedRowsLength = (0, _classPrivateFieldGet2.default)(this, _selectedRows).length;
       if (selectedRowsLength > 1) {
-        (0, _array.arrayEach)(this.selectedRows, selectedRow => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedRows), selectedRow => {
           runHooks(selectedRow);
         });
         render();
       } else {
-        (0, _array.arrayEach)(this.selectedRows, selectedRow => {
+        (0, _array.arrayEach)((0, _classPrivateFieldGet2.default)(this, _selectedRows), selectedRow => {
           runHooks(selectedRow, true);
         });
       }
     }
-    this.setupHandlePosition(this.currentTH);
+    this.setupHandlePosition((0, _classPrivateFieldGet2.default)(this, _currentTH));
   }
 }
 function _onContextMenu2() {
   this.hideHandleAndGuide();
-  this.hot.rootElement.removeChild(this.handle);
-  this.hot.rootElement.removeChild(this.guide);
-  this.pressed = false;
-  this.isTriggeredByRMB = true;
+  this.hot.rootElement.removeChild((0, _classPrivateFieldGet2.default)(this, _handle));
+  this.hot.rootElement.removeChild((0, _classPrivateFieldGet2.default)(this, _guide));
+  (0, _classPrivateFieldSet2.default)(this, _pressed, false);
+  (0, _classPrivateFieldSet2.default)(this, _isTriggeredByRMB, true);
 
   // There is thrown "mouseover" event right after opening a context menu. This flag inform that handle
   // shouldn't be drawn just after removing it.
   this.hot._registerImmediate(() => {
-    this.isTriggeredByRMB = false;
+    (0, _classPrivateFieldSet2.default)(this, _isTriggeredByRMB, false);
   });
 }
 function _onModifyRowHeight2(height, row) {
   let newHeight = height;
   if (this.enabled) {
     const physicalRow = this.hot.toPhysicalRow(row);
-    const rowHeight = this.rowHeightsMap.getValueAtIndex(physicalRow);
+    const rowHeight = (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).getValueAtIndex(physicalRow);
     if (this.hot.getSettings()[PLUGIN_KEY] && rowHeight) {
       newHeight = rowHeight;
     }
@@ -76933,16 +77035,16 @@ function _onMapInit2() {
   this.hot.batchExecution(() => {
     if (typeof loadedManualRowHeights !== 'undefined') {
       loadedManualRowHeights.forEach((height, index) => {
-        this.rowHeightsMap.setValueAtIndex(index, height);
+        (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).setValueAtIndex(index, height);
       });
     } else if (Array.isArray(initialSetting)) {
       initialSetting.forEach((height, index) => {
-        this.rowHeightsMap.setValueAtIndex(index, height);
+        (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).setValueAtIndex(index, height);
       });
       (0, _classPrivateFieldSet2.default)(this, _config, initialSetting);
     } else if (initialSetting === true && Array.isArray((0, _classPrivateFieldGet2.default)(this, _config))) {
       (0, _classPrivateFieldGet2.default)(this, _config).forEach((height, index) => {
-        this.rowHeightsMap.setValueAtIndex(index, height);
+        (0, _classPrivateFieldGet2.default)(this, _rowHeightsMap).setValueAtIndex(index, height);
       });
     }
   }, true);
